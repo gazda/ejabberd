@@ -49,6 +49,7 @@ defmodule Ejabberd.Mixfile do
     if_function_exported(:rand, :uniform, 1, [{:d, :RAND_UNIFORM}]) ++
     if_function_exported(:gb_sets, :iterator_from, 2, [{:d, :GB_SETS_ITERATOR_FROM}]) ++
     if_function_exported(:public_key, :short_name_hash, 1, [{:d, :SHORT_NAME_HASH}])
+    |> IO.inspect(label: 'ejabbered erlc_options')
   end
 
   defp cond_options do
@@ -78,8 +79,17 @@ defmodule Ejabberd.Mixfile do
   end
 
   defp deps_include(deps) do
+    IO.inspect(Mix.Project.apps_paths(), label: "apps_paths")
+    IO.inspect(Mix.Project.deps_path(), label: "deps_path")
+    IO.inspect(Mix.Project.deps_paths(), label: "deps_paths")
     base = case Mix.Project.deps_paths()[:ejabberd] do
-      nil -> "deps"
+#      nil when String.ends_with?(Mix.Project.deps_path(), "/ejabberd/deps") -> "../../deps"
+#      nil -> "deps"
+      nil -> if String.ends_with?(Mix.Project.deps_path(), "/ejabberd/deps") do
+               "../../deps"
+             else
+               "deps"
+             end
       _ -> ".."
     end
     Enum.map(deps, fn dep -> base<>"/#{dep}/include" end)
